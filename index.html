@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Camargo Studio — ERP</title>
+<style>
+  :root{
+    --bg:#F4F2EC;          /* papel quente, levemente neutro */
+    --panel:#FFFFFF;
+    --ink:#1C1813;         /* quase preto quente */
+    --ink-soft:#6B6459;    /* texto secundário */
+    --line:#E4E0D6;        /* hairlines */
+    --gold:#BFA05A;        /* ouro antigo (marca) */
+    --brass:#8C6E24;       /* ouro escuro para texto/ênfase */
+    --brass-bg:#F6EFDD;    /* fundo suave dourado */
+    --pos:#2E7D4F;
+    --neg:#B23A2C;
+    --shadow:0 1px 2px rgba(28,24,19,.05), 0 8px 24px rgba(28,24,19,.05);
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px;
+    line-height:1.45;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-variant-numeric:tabular-nums}
+  .wrap{max-width:1680px;margin:0 auto;padding:22px 24px 56px}
+
+  /* Header */
+  header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .mark{font-family:Georgia,"Times New Roman",serif;font-size:30px;font-weight:700;letter-spacing:.2px}
+  .mark .and{color:var(--gold)}
+  .tag{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  .btn-ghost{
+    background:transparent;border:1px solid var(--line);color:var(--ink-soft);
+    padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;transition:.15s;
+  }
+  .btn-ghost:hover{border-color:var(--neg);color:var(--neg)}
+  .btn-ghost:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+  /* KPI strip */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 14px;box-shadow:var(--shadow)}
+  .kpi .lbl{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+  .kpi .val{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.4px}
+  .kpi.hero{background:var(--ink);color:#F4F2EC;border-color:var(--ink)}
+  .kpi.hero .lbl{color:#C9BFA9}
+  .kpi.hero .val{color:#fff}
+  .kpi .val.gold{color:var(--brass)}
+
+  .grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-bottom:16px}
+
+  /* Painel: KPIs + pizza */
+  .painel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .painel-head .titulo{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+  .painel-head .per{display:flex;gap:8px}
+  .painel-head select{font-size:13px;padding:6px 9px;width:auto}
+  .painel{display:grid;grid-template-columns:1fr 360px;gap:12px;margin-bottom:16px}
+  .painel .kpis{margin-bottom:0}
+  .pizza{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+    padding:12px 14px;display:flex;align-items:center;gap:14px}
+  .pizza svg{flex:0 0 96px;width:96px;height:96px}
+  .pizza .leg{flex:1;font-size:12.5px;min-width:0}
+  .pizza .leg .t{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:4px}
+  .pizza .leg div.l{display:flex;align-items:center;gap:6px;margin:3px 0;white-space:nowrap}
+  .pizza .leg i{width:9px;height:9px;border-radius:2px;flex:0 0 9px}
+  .pizza .leg .v{margin-left:auto;color:var(--ink-soft)}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .card h2{margin:0;padding:16px 18px 12px;font-size:16px;font-weight:700;border-bottom:1px solid var(--line);
+           display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .card .body{padding:16px 18px 18px}
+  .hint{font-size:12.5px;color:var(--ink-soft);font-weight:400}
+
+  /* Form */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field.full{grid-column:1 / -1}
+  label{font-size:12px;color:var(--ink-soft);font-weight:600;letter-spacing:.02em}
+  input,select{
+    font:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);
+    border-radius:9px;padding:9px 11px;width:100%;transition:.15s;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(191,160,90,.18)}
+  .actions{display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap}
+  .btn{
+    background:var(--brass);color:#fff;border:none;border-radius:10px;
+    padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;letter-spacing:.01em;
+  }
+  .btn:hover{filter:brightness(1.07)}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .btn.cancel{background:transparent;color:var(--ink-soft);border:1px solid var(--line)}
+  .btn.cancel:hover{color:var(--ink);border-color:var(--ink-soft)}
+  .form-msg{font-size:13px;color:var(--neg);min-height:18px}
+
+  /* DRE */
+  .dre-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:14.5px}
+  .dre-row .k{color:var(--ink-soft)}
+  .dre-row .v{font-weight:600}
+  .dre-row.sub .k{padding-left:2px}
+  .dre-row.info .k,.dre-row.info .v{color:#A79E8C;font-style:italic}
+  .dre-row.det .k{padding-left:16px;font-size:12.5px;color:var(--ink-soft)}
+  .dre-row.det .v{font-size:12.5px;color:var(--ink-soft)}
+  .warn{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:#B7791F;margin-left:6px;font-weight:600}
+  .ref{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-left:6px;font-weight:400;font-style:normal}
+  .dre-sep{border:none;border-top:1px solid var(--line);margin:6px 0}
+  .dre-input{max-width:120px;text-align:right;padding:6px 9px}
+  .dre-result{background:var(--brass-bg);border:1px solid #EAD9AE;border-radius:12px;padding:14px 16px;margin-top:10px}
+  .dre-result .top{display:flex;justify-content:space-between;align-items:baseline}
+  .dre-result .rlbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+  .dre-result .rval{font-size:28px;font-weight:800;letter-spacing:-.5px}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .split .box{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .split .who{font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .split .amt{font-size:19px;font-weight:700;margin-top:3px}
+  .split .box.leo{border-color:var(--gold);background:var(--brass-bg)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+
+  /* Origem bars */
+  .ori{margin-top:6px}
+  .ori-row{margin:11px 0}
+  .ori-head{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
+  .ori-head .name{font-weight:600}
+  .ori-head .meta{color:var(--ink-soft)}
+  .bar{height:9px;background:#EFEBE0;border-radius:99px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--brass));border-radius:99px}
+
+  /* Table */
+  .table-card{overflow:hidden}
+  .tbl-scroll{overflow-x:auto}
+  .filtros{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 12px}
+  .filtros select{max-width:170px;font-size:13px;padding:7px 9px}
+  .filtros input[type=search]{flex:1;min-width:160px;font-size:13px;padding:7px 10px}
+  .link-btn{background:none;border:none;color:var(--brass);text-decoration:underline;cursor:pointer;font-size:13px;margin-top:6px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);background:#FBFAF6;position:sticky;top:0}
+  td.money{text-align:right}
+  tbody tr:hover{background:#FBF8F0}
+  .pill{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:99px;background:var(--brass-bg);color:var(--brass);border:1px solid #EAD9AE}
+  .row-act{display:flex;gap:6px}
+  .icon-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;color:var(--ink-soft)}
+  .icon-btn:hover{color:var(--ink);border-color:var(--ink-soft)}
+  .icon-btn.del:hover{color:var(--neg);border-color:var(--neg)}
+  .icon-btn.armed{background:var(--neg);color:#fff;border-color:var(--neg)}
+  .icon-btn.armed:hover{color:#fff}
+  .empty{padding:34px 18px;text-align:center;color:var(--ink-soft)}
+  .empty strong{color:var(--ink);display:block;margin-bottom:4px;font-size:15px}
+
+  /* Checkbox de status (form) e coluna "feito" (tabela) */
+  .check{display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;
+    color:var(--ink);cursor:pointer;letter-spacing:0;padding:9px 0}
+  .check input,.chk-done{width:auto!important;margin:0;padding:0;border:none;
+    box-shadow:none!important;accent-color:var(--brass);cursor:pointer;width:16px;height:16px}
+  .chk-done{width:17px;height:17px}
+  tbody tr.pend{background:#FBF7EE}
+  tbody tr.pend td:not(.st){color:var(--ink-soft)}
+  tbody tr.pend:hover{background:#F6EFDD}
+  .tag-ag{display:inline-block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--brass);margin-left:6px;vertical-align:middle}
+
+  .footnote{margin-top:18px;font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+  .editing-banner{background:var(--brass-bg);border:1px solid #EAD9AE;color:var(--brass);
+    font-size:13px;padding:8px 12px;border-radius:9px;margin-bottom:12px;display:none}
+  .editing-banner.on{display:block}
+
+  @media (max-width:1180px){ .painel{grid-template-columns:1fr} }
+  @media (max-width:820px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .painel{grid-template-columns:1fr}
+    .kpi.hero{grid-column:1 / -1}
+    .grid2{grid-template-columns:1fr}
+    .form-grid{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+  /* Login */
+  #login{position:fixed;inset:0;background:var(--bg,#F4F1EA);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+  #login .box{width:100%;max-width:360px;background:var(--panel,#fff);border:1px solid var(--line);border-radius:14px;padding:26px 24px;box-shadow:var(--shadow)}
+  #login h1{font-family:inherit;font-size:22px;margin:0 0 2px;letter-spacing:.02em}
+  #login .sub{color:var(--ink-soft);font-size:13px;margin-bottom:18px}
+  #login .field{margin-bottom:12px}
+  #login .btn{width:100%;margin-top:6px}
+  #loginMsg{color:var(--neg);font-size:13px;margin-top:10px;min-height:16px}
+  /* Topo: ações */
+  .top-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .sync{font-size:12px;color:var(--ink-soft)}
+  .sync.err{color:var(--neg)}
+  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#1F1D19;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;max-width:90vw}
+  #toast.on{opacity:1}
+  #toast.err{background:var(--neg)}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div id="login">
+  <div class="box">
+    <h1>Camargo Automotivo</h1>
+    <div class="sub">ERP · acesso restrito</div>
+    <div class="field"><label for="lgEmail">E-mail</label><input type="email" id="lgEmail" autocomplete="username" /></div>
+    <div class="field"><label for="lgSenha">Senha</label><input type="password" id="lgSenha" autocomplete="current-password" /></div>
+    <button class="btn" id="lgBtn">Entrar</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+<div id="toast"></div>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <div class="mark">Camargo<span class="and"> Automotivo</span></div>
+      <div class="tag">ERP · controle de serviços</div>
+    </div>
+    <div class="top-act">
+      <span class="sync" id="syncLbl"></span>
+      <button class="btn-ghost" id="btnImport" style="display:none">Importar dados da planilha</button>
+      <button class="btn-ghost" id="btnCsv">Exportar CSV</button>
+      <button class="btn-ghost" id="btnSair">Sair</button>
+    </div>
+  </header>
+
+  <!-- Painel de indicadores -->
+  <div class="painel-head">
+    <span class="titulo">Painel · <span id="perLbl"></span></span>
+    <div class="per">
+      <select id="perTipo">
+        <option value="acum">Acumulado</option>
+        <option value="mes" selected>Mês</option>
+        <option value="tri">Trimestre</option>
+        <option value="sem">Semestre</option>
+      </select>
+      <select id="perVal" style="display:none"></select>
+    </div>
+  </div>
+  <div class="painel">
+    <section class="kpis" id="kpis"></section>
+    <section class="pizza" id="pizza"></section>
+  </div>
+
+  <div class="grid2">
+    <!-- Entrada de serviço -->
+    <section class="card">
+      <h2>Novo serviço</h2>
+      <div class="body">
+        <div class="editing-banner" id="editBanner"></div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="data">Data</label>
+            <input type="date" id="data" />
+          </div>
+          <div class="field">
+            <label for="cliente">Cliente</label>
+            <input type="text" id="cliente" placeholder="Nome do cliente" />
+          </div>
+          <div class="field">
+            <label for="telefone">Telefone</label>
+            <input type="text" id="telefone" placeholder="16 9....-...." />
+          </div>
+          <div class="field">
+            <label for="veiculo">Tipo de veículo</label>
+            <select id="veiculo">
+              <option>Hatch</option><option>Sedan</option><option>SUV</option>
+              <option>Picape</option><option>Moto</option><option>Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="modelo">Modelo do veículo</label>
+            <input type="text" id="modelo" placeholder="Ex.: Corolla 2020" />
+          </div>
+          <div class="field full">
+            <label for="servico">Serviço</label>
+            <input type="text" id="servico" list="servicos-list" placeholder="Ex.: Polimento Técnico" />
+            <datalist id="servicos-list">
+              <option>Lavagem de manutenção</option>
+              <option>Lavagem detalhada</option>
+              <option>Lavagem + enceramento (cera líquida)</option>
+              <option>Lavagem de motor</option>
+              <option>Higienização interna completa (extratora)</option>
+              <option>Higienização de ar-condicionado (s/ filtro)</option>
+              <option>Hidratação de couro</option>
+              <option>Impermeabilização de tecidos</option>
+              <option>Descontaminação da pintura (clay bar)</option>
+              <option>Polimento comercial (1 estágio)</option>
+              <option>Polimento técnico (2–3 estágios)</option>
+              <option>Restauração de faróis (par)</option>
+              <option>Polimento de faróis (par)</option>
+              <option>Revitalização de plásticos externos</option>
+              <option>Combo Essencial (lavagem + cera + pneus + vidros)</option>
+              <option>Cristalização de vidros</option>
+              <option>Selante de pintura</option>
+              <option>Vitrificação cerâmica (1–3 anos)</option>
+              <option>Vitrificação premium (longa duração)</option>
+              <option>Pacote Premium</option>
+              <option>Pacote Master</option>
+              <option>Martelinho de ouro (PDR)</option>
+              <option>Insulfilm</option>
+              <option>Micropintura</option>
+            </datalist>
+          </div>
+          <div class="field">
+            <label for="receita">Receita (R$)</label>
+            <input type="number" id="receita" min="0" step="10" placeholder="0" />
+          </div>
+          <div class="field">
+            <label for="custo">Custo material teórico (R$)</label>
+            <input type="number" id="custo" min="0" step="5" placeholder="0" />
+          </div>
+          <div class="field">
+            <label for="custoTerc">Custo terceirização (R$)</label>
+            <input type="number" id="custoTerc" min="0" step="5" placeholder="0" />
+          </div>
+          <div class="field">
+            <label for="origem">Origem</label>
+            <select id="origem">
+              <option>Indicação</option><option>Instagram</option>
+              <option>Google</option><option>B2B</option><option>Outro</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="obs">Observação</label>
+            <input type="text" id="obs" placeholder="opcional" />
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <label class="check" for="concluido">
+              <input type="checkbox" id="concluido" checked /> Serviço concluído
+            </label>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="salvar">Adicionar serviço</button>
+          <button class="btn cancel" id="cancelar" style="display:none">Cancelar</button>
+          <span class="form-msg" id="msg"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- DRE do mês -->
+    <section class="card">
+      <h2>DRE do mês
+        <input type="month" id="mesDRE" class="num" style="max-width:150px;font-size:13px;padding:6px 9px" />
+      </h2>
+      <div class="body" id="dre"></div>
+    </section>
+  </div>
+
+
+  <!-- Tabela de serviços -->
+  <section class="card table-card">
+    <h2>Serviços lançados <span class="hint" id="countLbl"></span></h2>
+    <div class="filtros">
+      <select id="fMesServ"></select>
+      <input type="search" id="fBuscaServ" placeholder="Buscar cliente, telefone, modelo, serviço, origem…" />
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:center">Feito</th>
+            <th>Data</th><th>Cliente</th><th>Veículo</th><th>Serviço</th>
+            <th style="text-align:right">Receita</th><th style="text-align:right">Material teór.</th><th style="text-align:right">Terceir.</th>
+            <th>Origem</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Despesas -->
+  <section class="card table-card" style="margin-bottom:16px">
+    <h2>Despesas <span class="hint">estoque, DAS e custos fixos · entram na DRE do mês</span></h2>
+    <div class="body">
+      <div class="form-grid">
+        <div class="field">
+          <label for="estTipo">Tipo</label>
+          <select id="estTipo">
+            <option>Estoque</option><option>DAS</option><option>Aluguel</option><option>Água</option><option>Luz</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="estData">Data</label>
+          <input type="date" id="estData" />
+        </div>
+        <div class="field">
+          <label for="estValor">Valor (R$)</label>
+          <input type="number" id="estValor" min="0" step="1" placeholder="0" />
+        </div>
+        <div class="field full">
+          <label for="estDesc">Descrição</label>
+          <input type="text" id="estDesc" placeholder="Ex.: cera e microfibras · conta de luz de setembro" />
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="estAdd">Adicionar despesa</button>
+        <button class="btn-ghost" id="estCancel" style="display:none">Cancelar</button>
+        <span class="form-msg" id="estMsg"></span>
+      </div>
+    </div>
+    <div class="filtros">
+      <select id="fMesEst"></select>
+      <input type="search" id="fBuscaEst" placeholder="Buscar tipo, descrição, valor, data…" />
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Data</th><th>Tipo</th><th>Descrição</th><th style="text-align:right">Valor</th><th></th></tr>
+        </thead>
+        <tbody id="estBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <p class="footnote">
+    Os dados ficam salvos <strong>neste navegador</strong> (localStorage). Se você abrir em outro aparelho,
+    os lançamentos não vêm junto — isso muda quando ligarmos um banco de dados de verdade.
+    Por dentro, os cálculos usam <code>.reduce()</code>, <code>.filter()</code> e <code>.push()</code> —
+    o mesmo que você rodou no console.
+  </p>
+
+</div>
+
+<script>
+/* ====================== ESTADO ====================== */
+const KEY = 'camargo_erp_v2';
+const ORIGENS = ['Indicação','Instagram','Google','B2B','Outro'];
+
+const SEED = [
+  {id:uid(), "data": "2026-06-25", "cliente": "Lava rápido do Jailson", "telefone": "16 99331-0201", "veiculo": "Picape", "modelo": "", "servico": "Polimento Comercial", "receita": 400.0, "custo": 35.0, "custoTerc": 0, "origem": "Indicação", "obs": "Delivery", "concluido": true},
+  {id:uid(), "data": "2026-06-29", "cliente": "José Jovino", "telefone": "16 99205-8599", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 150.0, "custo": 10.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-01", "cliente": "Weverson Felipe", "telefone": "16 99283-4421", "veiculo": "Hatch", "modelo": "", "servico": "Polimento de Faróis", "receita": 350.0, "custo": 60.0, "custoTerc": 0, "origem": "Instagram", "obs": "Realizado também uma lavagem simples", "concluido": true},
+  {id:uid(), "data": "2026-07-03", "cliente": "Rafael mecânico", "telefone": "16 98868-8766", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 130.0, "custo": 8.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-04", "cliente": "Rafael mecânico", "telefone": "16 98868-8766", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 120.0, "custo": 8.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-04", "cliente": "Paulo Sergio", "telefone": "16 98816-9538", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 250.0, "custo": 15.0, "custoTerc": 0, "origem": "Indicação", "obs": "Realizado descontaminação e cristalização de vidros!", "concluido": true},
+  {id:uid(), "data": "2026-07-10", "cliente": "Graziela", "telefone": "16 992202045", "veiculo": "Hatch", "modelo": "", "servico": "Martelinho de Ouro", "receita": 400.0, "custo": 50.0, "custoTerc": 0, "origem": "Indicação", "obs": "Também será feito polimento", "concluido": true},
+  {id:uid(), "data": "2026-07-09", "cliente": "Derley (vizinho)", "telefone": "16 991291988", "veiculo": "Sedan", "modelo": "", "servico": "Martelinho de Ouro", "receita": 1200.0, "custo": 100.0, "custoTerc": 0, "origem": "Indicação", "obs": "Também foi feito polimento dos faróis e pintura", "concluido": true},
+  {id:uid(), "data": "2026-07-07", "cliente": "Renner", "telefone": "16 99274-3815", "veiculo": "Sedan", "modelo": "", "servico": "Martelinho de Ouro", "receita": 60.0, "custo": 0.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-10", "cliente": "Renner", "telefone": "16 99274-3815", "veiculo": "SUV", "modelo": "", "servico": "Martelinho de Ouro", "receita": 40.0, "custo": 0.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-08", "cliente": "Antonia", "telefone": "16 99331-0201", "veiculo": "Hatch", "modelo": "", "servico": "Polimento Comercial", "receita": 450.0, "custo": 50.0, "custoTerc": 200, "origem": "Indicação", "obs": "Pago 200 para o Max", "concluido": true},
+  {id:uid(), "data": "2026-07-13", "cliente": "João Motta", "telefone": "16 99772-5557", "veiculo": "Sedan", "modelo": "", "servico": "Higienização Interna", "receita": 400.0, "custo": 15.0, "custoTerc": 0, "origem": "Instagram", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-13", "cliente": "Alan Poli", "telefone": "16 99204-6035", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 150.0, "custo": 10.0, "custoTerc": 0, "origem": "Instagram", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-14", "cliente": "Carlos Calizus", "telefone": "16 99418-6568", "veiculo": "Sedan", "modelo": "", "servico": "Polimento Técnico", "receita": 900.0, "custo": 40.0, "custoTerc": 0, "origem": "Instagram", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-17", "cliente": "Gedson", "telefone": "16 99325-6395", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 150.0, "custo": 15.0, "custoTerc": 0, "origem": "Instagram", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-20", "cliente": "José Luiz", "telefone": "16 99217-5917", "veiculo": "Picape", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 200.0, "custo": 15.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-07-27", "cliente": "Gabriel", "telefone": "16 99173-5138", "veiculo": "Sedan", "modelo": "", "servico": "Hidratação de Bancos de Couro", "receita": 250.0, "custo": 15.0, "custoTerc": 0, "origem": "Instagram", "obs": "Realizado lavagem de manutenção", "concluido": true},
+  {id:uid(), "data": "2026-07-22", "cliente": "Gustavo postigo", "telefone": "16 99130-4533", "veiculo": "Picape", "modelo": "", "servico": "Polimento de Faróis", "receita": 500.0, "custo": 50.0, "custoTerc": 0, "origem": "Instagram", "obs": "Realizado enceramento técnico e pdr", "concluido": true},
+  {id:uid(), "data": "2026-07-30", "cliente": "Gustavo Postigo", "telefone": "16 99130-4533", "veiculo": "Sedan", "modelo": "", "servico": "Polimento Técnico", "receita": 600.0, "custo": 20.0, "custoTerc": 0, "origem": "Instagram", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-08-03", "cliente": "Frank", "telefone": "16 99356-5108", "veiculo": "Hatch", "modelo": "", "servico": "Higienização Interna", "receita": 700.0, "custo": 30.0, "custoTerc": 0, "origem": "Indicação", "obs": "Realizado lavagem, lavagem de motor, remoção de insulfilme e higienização interna!", "concluido": true},
+  {id:uid(), "data": "2026-08-04", "cliente": "Bruno Vital", "telefone": "16 99125-4970", "veiculo": "Sedan", "modelo": "", "servico": "Martelinho de Ouro", "receita": 150.0, "custo": 0.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-08-06", "cliente": "Renner", "telefone": "16 99274-3815", "veiculo": "Hatch", "modelo": "", "servico": "Martelinho de Ouro", "receita": 130.0, "custo": 0.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-08-07", "cliente": "Eliseu", "telefone": "16 99281-9411", "veiculo": "Sedan", "modelo": "", "servico": "Polimento Técnico", "receita": 750.0, "custo": 30.0, "custoTerc": 0, "origem": "Indicação", "obs": "Realizado polimento, lavagem, polimento de faróis e lavagem do motor!", "concluido": true},
+  {id:uid(), "data": "2026-08-08", "cliente": "Rafa", "telefone": "", "veiculo": "Hatch", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 120.0, "custo": 30.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-08-10", "cliente": "Estevão", "telefone": "", "veiculo": "Hatch", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 150.0, "custo": 30.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-08-17", "cliente": "Rose", "telefone": "", "veiculo": "Hatch", "modelo": "", "servico": "Polimento Técnico", "receita": 700.0, "custo": 20.0, "custoTerc": 0, "origem": "Indicação", "obs": "Parcelado em 3x", "concluido": true},
+  {id:uid(), "data": "2026-08-15", "cliente": "Vanessa", "telefone": "16 99285-0935", "veiculo": "SUV", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 180.0, "custo": 15.0, "custoTerc": 0, "origem": "Indicação", "obs": "", "concluido": true},
+  {id:uid(), "data": "2026-08-20", "cliente": "Alan Gembre", "telefone": "16 99410-8216", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 280.0, "custo": 20.0, "custoTerc": 0, "origem": "Indicação", "obs": "Realizado também limpeza de faróis", "concluido": true},
+  {id:uid(), "data": "2026-08-22", "cliente": "Silvano", "telefone": "16 98813-9032", "veiculo": "Sedan", "modelo": "", "servico": "Higienização Interna", "receita": 800.0, "custo": 50.0, "custoTerc": 0, "origem": "Indicação", "obs": "Realizado polimento dos faróis", "concluido": true},
+  {id:uid(), "data": "2026-09-05", "cliente": "Itamar", "telefone": "16 99431-6236", "veiculo": "Hatch", "modelo": "", "servico": "Polimento Técnico", "receita": 3500.0, "custo": 20.0, "custoTerc": 1980, "origem": "Indicação", "obs": "Serviços concluídos: lavagem completa, higienização, restauração de faróis, polimento técnico e pintura (para-choques dianteiro/traseiro e capô). O valor total foi de R$ 3.500,00, sendo R$ 1.500,00 destinados ao Max pela pintura e R$ 480,00 ao Bruno pela lavagem completa.", "concluido": true},
+  {id:uid(), "data": "2026-09-03", "cliente": "Postigo", "telefone": "16 99130-4533", "veiculo": "Sedan", "modelo": "", "servico": "Polimento Comercial", "receita": 300.0, "custo": 15.0, "custoTerc": 0, "origem": "Indicação", "obs": "Lavagem simples + polimento comercial", "concluido": true},
+  {id:uid(), "data": "2026-09-04", "cliente": "José Jovino", "telefone": "16 99205-8599", "veiculo": "Hatch", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 150.0, "custo": 15.0, "custoTerc": 0, "origem": "Indicação", "obs": "Lavagem simples + cera", "concluido": true},
+  {id:uid(), "data": "2026-09-15", "cliente": "Nilton", "telefone": "16 99726-3040", "veiculo": "Hatch", "modelo": "", "servico": "Martelinho de Ouro", "receita": 1000.0, "custo": 70.0, "custoTerc": 0, "origem": "Indicação", "obs": "Higienização + PDR", "concluido": true},
+  {id:uid(), "data": "2026-09-14", "cliente": "Gabriel", "telefone": "16 99173-5138", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 250.0, "custo": 15.0, "custoTerc": 0, "origem": "Indicação", "obs": "Lavagem + Descontaminação + Cera", "concluido": true},
+  {id:uid(), "data": "2026-09-18", "cliente": "Gabriel", "telefone": "16 99173-5138", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 150.0, "custo": 15.0, "custoTerc": 0, "origem": "Instagram", "obs": "Lavagem simples + Cera (Ja avaliou pelo google)", "concluido": true},
+  {id:uid(), "data": "2026-09-18", "cliente": "Edson (Manguinha)", "telefone": "16 99263-2882", "veiculo": "Sedan", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 200.0, "custo": 15.0, "custoTerc": 0, "origem": "Instagram", "obs": "Lavagem + Cera Sio2", "concluido": true},
+  {id:uid(), "data": "2026-09-19", "cliente": "Edson (Manguinha)", "telefone": "16 99263-2882", "veiculo": "SUV", "modelo": "", "servico": "Lavagem Técnica Detalhada", "receita": 200.0, "custo": 15.0, "custoTerc": 0, "origem": "Instagram", "obs": "Desconto no valor de 50 reais", "concluido": true}
+];
+const SEED_DESP = [
+  {id:uid(), "tipo": "Estoque", "data": "2026-07-12", "valor": 450.0, "descricao": "Reposição de Produtos"},
+  {id:uid(), "tipo": "Estoque", "data": "2026-08-01", "valor": 227.0, "descricao": "Reposição de Produtos + 10 fitas crepe"},
+  {id:uid(), "tipo": "Estoque", "data": "2026-09-01", "valor": 500.0, "descricao": "Construtintas"},
+  {id:uid(), "tipo": "Estoque", "data": "2026-09-02", "valor": 401.65, "descricao": "Termometro, Raspador, Composto polidor, PU, Disco removedor, Revitalizador"},
+  {id:uid(), "tipo": "Estoque", "data": "2026-09-03", "valor": 111.98, "descricao": "RD Iluminação"},
+  {id:uid(), "tipo": "Estoque", "data": "2026-09-11", "valor": 72.0, "descricao": "Tinta micropintura"},
+  {id:uid(), "tipo": "DAS", "data": "2026-09-20", "valor": 87.19, "descricao": "DAS MEI setembro (valor da planilha)"},
+  {id:uid(), "tipo": "Aluguel", "data": "2026-09-10", "valor": 1500.0, "descricao": "Aluguel setembro (valor da planilha)"},
+  {id:uid(), "tipo": "Luz", "data": "2026-09-15", "valor": 100.0, "descricao": "Energia/água/internet setembro (valor agregado da planilha)"}
+];
+const DEFAULT_DRE = { proLabore:3000 };
+
+let servicos = [];
+let estoque = [];
+let dreParams = {...DEFAULT_DRE};
+let editId = null;
+
+/* ---- persistência (protegida: não quebra no preview do Claude) ---- */
+function save(){ /* dados agora ficam no Supabase */ }
+
+/* ====================== SUPABASE ====================== */
+const SUPA_URL = 'https://myyogsknhuaciffaofox.supabase.co';
+const SUPA_KEY = 'sb_publishable_yBcnSYa2L9qf8PeapeL5VA_S8bh-Usa';
+const sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+const toRowS = s => ({id:s.id, data:s.data, cliente:s.cliente||'', telefone:s.telefone||'', veiculo:s.veiculo,
+  modelo:s.modelo||'', servico:s.servico||'', receita:s.receita||0, custo:s.custo||0, custo_terc:s.custoTerc||0,
+  origem:s.origem, obs:s.obs||'', concluido:!!s.concluido});
+const fromRowS = r => ({id:r.id, data:r.data, cliente:r.cliente||'', telefone:r.telefone||'', veiculo:r.veiculo,
+  modelo:r.modelo||'', servico:r.servico||'', receita:+r.receita||0, custo:+r.custo||0, custoTerc:+r.custo_terc||0,
+  origem:r.origem, obs:r.obs||'', concluido:!!r.concluido});
+const toRowD = e => ({id:e.id, tipo:e.tipo||'Estoque', data:e.data, valor:e.valor||0, descricao:e.descricao||''});
+const fromRowD = r => ({id:r.id, tipo:r.tipo, data:r.data, valor:+r.valor||0, descricao:r.descricao||''});
+
+let toastT;
+function toast(msg, err){
+  const t=$('toast'); t.textContent=msg; t.className='on'+(err?' err':'');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.className='', err?5000:2200);
+}
+function setSync(txt, err){ const s=$('syncLbl'); s.textContent=txt; s.className='sync'+(err?' err':''); }
+
+async function carregar(){
+  setSync('sincronizando…');
+  const [a,b,c] = await Promise.all([
+    sb.from('servicos').select('*').order('data'),
+    sb.from('despesas').select('*').order('data'),
+    sb.from('prolabore').select('*'),
+  ]);
+  const err = a.error||b.error||c.error;
+  if(err){ setSync('erro de conexão', true); toast('Erro ao carregar: '+err.message, true); return false; }
+  servicos = a.data.map(fromRowS);
+  estoque  = b.data.map(fromRowD);
+  dreParams = {...DEFAULT_DRE, proLaborePorMes: Object.fromEntries(c.data.map(r=>[r.mes, +r.valor]))};
+  $('btnImport').style.display = (!servicos.length && !estoque.length) ? '' : 'none';
+  setSync('sincronizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  renderAll();
+  return true;
+}
+
+/* executa a gravação; se falhar, avisa e recarrega do banco para não mostrar dado falso */
+async function db(promessa, okMsg){
+  setSync('salvando…');
+  const {error} = await promessa;
+  if(error){ toast('Não salvou: '+error.message, true); await carregar(); return false; }
+  setSync('sincronizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  if(okMsg) toast(okMsg);
+  return true;
+}
+function load(){ try{ const r = localStorage.getItem(KEY); if(r) return JSON.parse(r); }catch(e){} return null; }
+function uid(){
+  try{ return crypto.randomUUID(); }catch(e){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});
+  }
+}
+
+/* ====================== HELPERS ====================== */
+const $ = id => document.getElementById(id);
+const brl = v => (v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2});
+const pct = x => (x*100).toFixed(1).replace('.',',')+'%';
+const soma = (arr,f) => arr.reduce((t,x)=>t+f(x),0);
+const dataBR = iso => { const [a,m,d]=iso.split('-'); return `${d}/${m}`; };
+
+/* ====================== RENDER: PAINEL ====================== */
+/* ---- período do painel ---- */
+function chavePer(data, tipo){
+  const a=data.slice(0,4), m=+data.slice(5,7);
+  if(tipo==='mes') return data.slice(0,7);
+  if(tipo==='tri') return `${a}-T${Math.ceil(m/3)}`;
+  if(tipo==='sem') return `${a}-S${m<=6?1:2}`;
+  return 'acum';
+}
+function rotuloPer(ch, tipo){
+  if(tipo==='mes'){ const [a,mm]=ch.split('-'); return `${MESES_PT[+mm-1]}/${a}`; }
+  if(tipo==='tri') return `${ch.slice(-1)}º tri/${ch.slice(0,4)}`;
+  if(tipo==='sem') return `${ch.slice(-1)}º sem/${ch.slice(0,4)}`;
+  return 'acumulado';
+}
+function montarPeriodos(){
+  const tipo=$('perTipo').value, sel=$('perVal');
+  if(tipo==='acum'){ sel.style.display='none'; return; }
+  sel.style.display='';
+  const hoje=new Date().toISOString().slice(0,10);
+  const atual = sel.dataset.tipo===tipo ? sel.value : chavePer(hoje,tipo);
+  const datas=[hoje, ...servicos.map(s=>s.data), ...estoque.map(e=>e.data||'')].filter(Boolean);
+  const chaves=[...new Set(datas.map(d=>chavePer(d,tipo)))].sort().reverse();
+  sel.innerHTML=chaves.map(c=>`<option value="${c}">${rotuloPer(c,tipo)}</option>`).join('');
+  sel.value = chaves.includes(atual)?atual:chaves[0];
+  sel.dataset.tipo=tipo;
+}
+function noPeriodo(data){
+  const tipo=$('perTipo').value;
+  if(tipo==='acum') return true;
+  return !!data && chavePer(data,tipo)===$('perVal').value;
+}
+
+function renderKPIs(){
+  montarPeriodos();
+  const tipo=$('perTipo').value;
+  $('perLbl').textContent = tipo==='acum' ? 'acumulado' : rotuloPer($('perVal').value, tipo);
+  const feitos = servicos.filter(s=>s.concluido && noPeriodo(s.data));
+  const n = feitos.length;
+  const receita = soma(feitos, s=>s.receita);
+  const terceirizacao = soma(feitos, s=>s.custoTerc||0);
+  const estoqueTotal = soma(estoque.filter(e=>(e.tipo||'Estoque')==='Estoque' && noPeriodo(e.data)), e=>e.valor||0);
+  const custoReal = terceirizacao + estoqueTotal;
+  const ticket = n ? receita/n : 0;
+  const margem = receita - custoReal;
+  const pctCusto = receita ? custoReal/receita : 0;
+
+  $('kpis').innerHTML = `
+    <div class="kpi hero"><div class="lbl">Receita total</div><div class="val num">${brl(receita)}</div></div>
+    <div class="kpi"><div class="lbl">Serviços</div><div class="val num">${n}</div></div>
+    <div class="kpi"><div class="lbl">Ticket médio</div><div class="val num">${brl(ticket)}</div></div>
+    <div class="kpi"><div class="lbl">Custo real</div><div class="val num">${brl(custoReal)}</div><div class="hint num">terceir. + estoque · ${pct(pctCusto)}</div></div>
+    <div class="kpi"><div class="lbl">Margem contrib.</div><div class="val num gold">${brl(margem)}</div></div>
+  `;
+  renderPizza(feitos, receita);
+}
+
+const CORES_ORI = ['#B08A3E','#1F1D19','#D9BF7A','#8C8577','#E6DFD0'];
+function renderPizza(feitos, total){
+  const rows = ORIGENS.map((o,i)=>({o, cor:CORES_ORI[i%CORES_ORI.length],
+    rec: soma(feitos.filter(s=>s.origem===o), s=>s.receita)})).sort((a,b)=>b.rec-a.rec);
+  let svg;
+  if(!total){
+    svg = `<svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.9" fill="none" stroke="#EFEBE0" stroke-width="7"/></svg>`;
+  } else {
+    let acc = 0;
+    const fatias = rows.filter(r=>r.rec>0).map(r=>{
+      const p = r.rec/total*100;
+      const c = `<circle cx="21" cy="21" r="15.9155" fill="none" stroke="${r.cor}" stroke-width="7"
+        stroke-dasharray="${p} ${100-p}" stroke-dashoffset="${25-acc}"><title>${r.o}: ${pct(p/100)}</title></circle>`;
+      acc += p; return c;
+    }).join('');
+    svg = `<svg viewBox="0 0 42 42">${fatias}</svg>`;
+  }
+  $('pizza').innerHTML = svg + `<div class="leg"><div class="t">Receita por origem</div>` +
+    rows.map(r=>`<div class="l"><i style="background:${r.cor}"></i>${r.o}
+      <span class="v num">${total?pct(r.rec/total):'—'} · ${brl(r.rec)}</span></div>`).join('') + `</div>`;
+}
+
+/* ====================== RENDER: DRE ====================== */
+/* pró-labore por mês: sem valor salvo, herda o último mês anterior (estimado) */
+function proLaboreDoMes(mes){
+  const pm = dreParams.proLaborePorMes || {};
+  if(pm[mes]!==undefined) return {v:pm[mes], est:false};
+  const ant = Object.keys(pm).filter(k=>k<mes).sort().pop();
+  return {v: ant ? pm[ant] : (dreParams.proLabore||0), est:true};
+}
+
+function renderDRE(){
+  const mes = $('mesDRE').value;
+  const doMes = servicos.filter(s => s.data.slice(0,7) === mes && s.concluido);
+  const despMes = estoque.filter(e => (e.data||'').slice(0,7) === mes);
+  const porTipo = t => soma(despMes.filter(e=>(e.tipo||'Estoque')===t), e=>e.valor||0);
+  const receita = soma(doMes, s=>s.receita);
+  const materialTeorico = soma(doMes, s=>s.custo);
+  const terceirizacao = soma(doMes, s=>s.custoTerc||0);
+  const estoqueMes = porTipo('Estoque');
+  const das = porTipo('DAS');
+  const aluguel = porTipo('Aluguel'), agua = porTipo('Água'), luz = porTipo('Luz');
+  const fixos = aluguel + agua + luz;
+  const pl = proLaboreDoMes(mes);
+  const margem = receita - terceirizacao - estoqueMes;
+  const resultado = margem - pl.v - das - fixos;
+  const margemPct = receita ? resultado/receita : 0;
+  const pctTeorico = receita ? materialTeorico/receita : 0;
+  const elias = resultado*0.7, leo = resultado*0.3;
+  const cls = resultado>=0 ? 'pos' : 'neg';
+  const falta = v => v ? '' : '<span class="warn">não lançado</span>';
+
+  $('dre').innerHTML = `
+    <div class="dre-row"><span class="k">Receita bruta</span><span class="v num">${brl(receita)}</span></div>
+    <div class="dre-row sub info"><span class="k">Custo de material teórico <span class="ref">referência · não entra</span></span><span class="v num">${brl(materialTeorico)}</span></div>
+    <div class="dre-row sub"><span class="k">(–) Custo de terceirização</span><span class="v num">${brl(-terceirizacao)}</span></div>
+    <div class="dre-row sub"><span class="k">(–) Custo de estoque <span class="ref">compras do mês</span></span><span class="v num">${brl(-estoqueMes)}</span></div>
+    <hr class="dre-sep">
+    <div class="dre-row"><span class="k">(=) Margem de contribuição</span><span class="v num">${brl(margem)}</span></div>
+    <div class="dre-row sub"><span class="k">(–) Pró-labore Elias ${pl.est?'<span class="warn">estimado</span>':''}</span>
+      <input type="number" class="dre-input num" id="p_prolabore" value="${pl.v}"></div>
+    <div class="dre-row sub"><span class="k">(–) Impostos (DAS MEI) ${falta(das)}</span><span class="v num">${brl(-das)}</span></div>
+    <div class="dre-row sub"><span class="k">(–) Custo fixo</span><span class="v num">${brl(-fixos)}</span></div>
+    <div class="dre-row det"><span class="k">Aluguel ${falta(aluguel)}</span><span class="v num">${brl(-aluguel)}</span></div>
+    <div class="dre-row det"><span class="k">Água ${falta(agua)}</span><span class="v num">${brl(-agua)}</span></div>
+    <div class="dre-row det"><span class="k">Luz ${falta(luz)}</span><span class="v num">${brl(-luz)}</span></div>
+
+    <div class="dre-result">
+      <div class="top">
+        <span class="rlbl">Resultado do mês</span>
+        <span class="rval num ${cls}">${brl(resultado)}</span>
+      </div>
+      <div class="hint num" style="margin-top:2px">Margem real: ${pct(margemPct)} · material teórico ${brl(materialTeorico)} (${pct(pctTeorico)})</div>
+      <div class="split">
+        <div class="box"><div class="who">Elias · 70%</div><div class="amt num ${cls}">${brl(elias)}</div></div>
+        <div class="box leo"><div class="who">Leonardo · 30%</div><div class="amt num ${cls}">${brl(leo)}</div></div>
+      </div>
+    </div>
+  `;
+
+  // pró-labore: grava o valor só para este mês
+  $('p_prolabore').addEventListener('change', e=>{
+    dreParams.proLaborePorMes = dreParams.proLaborePorMes || {};
+    const v = Number(e.target.value)||0;
+    dreParams.proLaborePorMes[mes] = v;
+    renderDRE();
+    db(sb.from('prolabore').upsert({mes, valor:v}), 'Pró-labore salvo');
+  });
+}
+
+/* ====================== RENDER: TABELA ====================== */
+/* ---- filtros: mês + busca ---- */
+const MESES_PT=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const mesAtual = ()=> new Date().toISOString().slice(0,7);
+const normTxt = t => String(t??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function montarMeses(sel, lista){
+  const atual = sel.value || mesAtual();
+  const meses = [...new Set([mesAtual(), ...lista.map(x=>(x.data||'').slice(0,7)).filter(Boolean)])].sort().reverse();
+  sel.innerHTML = meses.map(m=>{ const [a,mm]=m.split('-'); return `<option value="${m}">${MESES_PT[+mm-1]}/${a}</option>`; }).join('')
+    + `<option value="todos">Todos</option>`;
+  sel.value = (atual==='todos' || meses.includes(atual)) ? atual : mesAtual();
+}
+function filtrar(lista, mes, busca, campos){
+  const q = normTxt(busca.trim());
+  return lista.filter(x=>{
+    if(mes!=='todos' && (x.data||'').slice(0,7)!==mes) return false;
+    if(!q) return true;
+    return campos(x).some(v=> normTxt(v).includes(q));
+  });
+}
+const camposServ = s => [s.cliente,s.telefone,s.veiculo,s.modelo,s.servico,s.origem,s.obs,
+  dataBR(s.data), s.receita, brl(s.receita), s.concluido?'concluido':'agendado'];
+const camposEst = e => [e.tipo, e.descricao, e.data?dataBR(e.data):'', e.valor, brl(e.valor)];
+window.verTodos = function(qual){ const id = qual==='est'?'fMesEst':'fMesServ'; $(id).value='todos'; qual==='est'?renderEstoque():renderTable(); };
+
+function renderTable(){
+  const tb = $('tbody');
+  montarMeses($('fMesServ'), servicos);
+  const lista = filtrar(servicos, $('fMesServ').value, $('fBuscaServ').value, camposServ);
+  const pend = lista.filter(s=>!s.concluido).length;
+  $('countLbl').textContent = lista.length
+    ? `${lista.length} lançamento${lista.length>1?'s':''}${pend? ` · ${pend} agendado${pend>1?'s':''}`:''}`
+    : '';
+  if(!lista.length){
+    const filtrando = servicos.length > 0;
+    const podeTodos = filtrando && $('fMesServ').value!=='todos';
+    tb.innerHTML = `<tr><td colspan="10"><div class="empty"><strong>${filtrando?'Nada encontrado':'Nenhum serviço ainda'}</strong>
+      ${filtrando?'Nenhum lançamento neste filtro.':'Lance o primeiro no formulário acima.'}
+      ${podeTodos?`<br><button class="link-btn" onclick="verTodos('serv')">ver em todos os meses</button>`:''}</div></td></tr>`;
+    return;
+  }
+  const ordenado = [...lista].sort((a,b)=> b.data.localeCompare(a.data));
+  tb.innerHTML = ordenado.map(s=>`
+    <tr class="${s.concluido?'':'pend'}">
+      <td class="st" style="text-align:center">
+        <input type="checkbox" class="chk-done" ${s.concluido?'checked':''}
+          onchange="toggleConcluido('${s.id}')" title="${s.concluido?'Concluído':'Marcar como concluído'}">
+      </td>
+      <td class="num">${dataBR(s.data)}${s.concluido?'':'<span class="tag-ag">agendado</span>'}</td>
+      <td>${escapeHtml(s.cliente)||'—'}</td>
+      <td>${s.veiculo}${s.modelo?`<div class="hint">${escapeHtml(s.modelo)}</div>`:''}</td>
+      <td>${escapeHtml(s.servico)||'—'}</td>
+      <td class="money num">${brl(s.receita)}</td>
+      <td class="money num">${brl(s.custo)}</td>
+      <td class="money num">${brl(s.custoTerc||0)}</td>
+      <td><span class="pill">${s.origem}</span></td>
+      <td>
+        <div class="row-act">
+          <button class="icon-btn" onclick="editar('${s.id}')">editar</button>
+          <button class="icon-btn del" onclick="remover('${s.id}', this)">excluir</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+function escapeHtml(t){ return (t||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function renderAll(){ renderKPIs(); renderDRE(); renderTable(); renderEstoque(); }
+
+/* ====================== RENDER: ESTOQUE ====================== */
+function renderEstoque(){
+  const tb = $('estBody');
+  montarMeses($('fMesEst'), estoque);
+  const lista = filtrar(estoque, $('fMesEst').value, $('fBuscaEst').value, camposEst);
+  if(!lista.length){
+    const filtrando = estoque.length > 0;
+    const podeTodos = filtrando && $('fMesEst').value!=='todos';
+    tb.innerHTML = `<tr><td colspan="5"><div class="empty"><strong>${filtrando?'Nada encontrado':'Nenhuma despesa'}</strong>
+      ${filtrando?'Nenhuma despesa neste filtro.':'Lance a primeira despesa acima.'}
+      ${podeTodos?`<br><button class="link-btn" onclick="verTodos('est')">ver em todos os meses</button>`:''}</div></td></tr>`;
+    return;
+  }
+  const total = soma(lista, e=>e.valor||0);
+  const ordenado = [...lista].sort((a,b)=> (b.data||'').localeCompare(a.data||''));
+  tb.innerHTML = ordenado.map(e=>`
+    <tr>
+      <td class="num">${e.data?dataBR(e.data):'—'}</td>
+      <td><span class="pill">${e.tipo||'Estoque'}</span></td>
+      <td>${escapeHtml(e.descricao)||'—'}</td>
+      <td class="money num">${brl(e.valor)}</td>
+      <td><div class="row-act"><button class="icon-btn" onclick="editarEstoque('${e.id}')">editar</button><button class="icon-btn del" onclick="removerEstoque('${e.id}', this)">excluir</button></div></td>
+    </tr>
+  `).join('') + `
+    <tr><td></td><td></td><td style="font-weight:600">Total</td>
+    <td class="money num" style="font-weight:700">${brl(total)}</td><td></td></tr>`;
+}
+
+/* ====================== AÇÕES (CRUD) ====================== */
+function lerForm(){
+  return {
+    data: $('data').value || new Date().toISOString().slice(0,10),
+    cliente: $('cliente').value.trim(),
+    telefone: $('telefone').value.trim(),
+    veiculo: $('veiculo').value,
+    modelo: $('modelo').value.trim(),
+    servico: $('servico').value.trim(),
+    receita: Number($('receita').value)||0,
+    custo: Number($('custo').value)||0,
+    custoTerc: Number($('custoTerc').value)||0,
+    origem: $('origem').value,
+    obs: $('obs').value.trim(),
+    concluido: $('concluido').checked,
+  };
+}
+function limparForm(){
+  ['cliente','telefone','modelo','servico','receita','custo','custoTerc','obs'].forEach(id=>$(id).value='');
+  $('data').value = new Date().toISOString().slice(0,10);
+  $('veiculo').value='Hatch'; $('origem').value='Indicação';
+  $('concluido').checked = true;
+  $('msg').textContent='';
+}
+function sairEdicao(){
+  editId=null;
+  $('salvar').textContent='Adicionar serviço';
+  $('cancelar').style.display='none';
+  $('editBanner').classList.remove('on');
+  limparForm();
+}
+
+$('salvar').addEventListener('click', ()=>{
+  const d = lerForm();
+  if(!d.cliente){ $('msg').textContent='Informe o nome do cliente.'; $('cliente').focus(); return; }
+  if(d.receita<=0){ $('msg').textContent='A receita precisa ser maior que zero.'; $('receita').focus(); return; }
+
+  let reg;
+  if(editId){
+    const i = servicos.findIndex(s=>s.id===editId);
+    if(i>-1){ servicos[i] = {...servicos[i], ...d}; reg = servicos[i]; }
+    sairEdicao();
+  } else {
+    reg = {id:uid(), ...d};
+    servicos.push(reg);
+    limparForm();
+    $('cliente').focus();
+  }
+  const mesServ = d.data.slice(0,7);
+  $('mesDRE').value = mesServ;
+  if($('fMesServ').value!=='todos') $('fMesServ').value = mesServ;
+  renderAll();
+  if(reg) db(sb.from('servicos').upsert(toRowS(reg)), 'Serviço salvo');
+});
+
+$('cancelar').addEventListener('click', sairEdicao);
+
+window.editar = function(id){
+  const s = servicos.find(x=>x.id===id); if(!s) return;
+  editId=id;
+  $('data').value=s.data; $('cliente').value=s.cliente; $('telefone').value=s.telefone;
+  $('veiculo').value=s.veiculo; $('modelo').value=s.modelo||''; $('servico').value=s.servico;
+  $('receita').value=s.receita; $('custo').value=s.custo; $('custoTerc').value=s.custoTerc||0; $('origem').value=s.origem; $('obs').value=s.obs;
+  $('concluido').checked = !!s.concluido;
+  $('salvar').textContent='Salvar alterações';
+  $('cancelar').style.display='inline-block';
+  $('editBanner').textContent='Editando: '+ (s.cliente||'serviço') +' — '+ s.servico;
+  $('editBanner').classList.add('on');
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+
+window.toggleConcluido = function(id){
+  const s = servicos.find(x=>x.id===id); if(!s) return;
+  s.concluido = !s.concluido;
+  renderAll();
+  db(sb.from('servicos').update({concluido:s.concluido}).eq('id', id));
+};
+
+/* confirmação em 2 cliques (confirm() é bloqueado em alguns ambientes) */
+function armado(btn){
+  if(!btn) return true;
+  if(btn.dataset.armed==='1'){ btn.dataset.armed=''; btn.classList.remove('armed'); btn.textContent=btn.dataset.orig; return true; }
+  btn.dataset.armed='1'; btn.dataset.orig=btn.textContent; btn.classList.add('armed'); btn.textContent='confirmar?';
+  setTimeout(()=>{ if(btn.isConnected && btn.dataset.armed==='1'){ btn.dataset.armed=''; btn.classList.remove('armed'); btn.textContent=btn.dataset.orig; } }, 3000);
+  return false;
+}
+
+window.remover = function(id, btn){
+  const s = servicos.find(x=>x.id===id); if(!s) return;
+  if(!armado(btn)) return;
+  servicos = servicos.filter(x=>x.id!==id);
+  if(editId===id) sairEdicao();
+  renderAll();
+  db(sb.from('servicos').delete().eq('id', id), 'Serviço excluído');
+};
+
+$('mesDRE').addEventListener('change', renderDRE);
+$('perTipo').addEventListener('change', renderKPIs);
+$('perVal').addEventListener('change', renderKPIs);
+$('fMesServ').addEventListener('change', renderTable);
+$('fBuscaServ').addEventListener('input', renderTable);
+$('fMesEst').addEventListener('change', renderEstoque);
+$('fBuscaEst').addEventListener('input', renderEstoque);
+
+/* ====================== AÇÕES: ESTOQUE ====================== */
+$('estAdd').addEventListener('click', ()=>{
+  const valor = Number($('estValor').value)||0;
+  const desc = $('estDesc').value.trim();
+  if(valor<=0){ $('estMsg').textContent='Informe um valor maior que zero.'; $('estValor').focus(); return; }
+  const dataEst = $('estData').value || new Date().toISOString().slice(0,10);
+  let reg;
+  if(estEditId){
+    const e = estoque.find(x=>x.id===estEditId);
+    if(e){ e.data=dataEst; e.valor=valor; e.descricao=desc; e.tipo=$('estTipo').value; reg=e; }
+    sairEdicaoEstoque();
+  } else {
+    reg = { id: uid(), tipo: $('estTipo').value, data: dataEst, valor, descricao: desc };
+    estoque.push(reg);
+    $('estValor').value=''; $('estDesc').value='';
+    $('estData').value = new Date().toISOString().slice(0,10);
+    $('estMsg').textContent='';
+    $('estValor').focus();
+  }
+  if($('fMesEst').value!=='todos') $('fMesEst').value = dataEst.slice(0,7);
+  renderAll();
+  if(reg) db(sb.from('despesas').upsert(toRowD(reg)), 'Despesa salva');
+});
+
+window.removerEstoque = function(id, btn){
+  const e = estoque.find(x=>x.id===id); if(!e) return;
+  if(!armado(btn)) return;
+  estoque = estoque.filter(x=>x.id!==id);
+  if(estEditId===id) sairEdicaoEstoque();
+  renderAll();
+  db(sb.from('despesas').delete().eq('id', id), 'Despesa excluída');
+};
+
+let estEditId = null;
+function sairEdicaoEstoque(){
+  estEditId = null;
+  $('estAdd').textContent='Adicionar despesa';
+  $('estCancel').style.display='none';
+  $('estValor').value=''; $('estDesc').value='';
+  $('estData').value = new Date().toISOString().slice(0,10);
+  $('estMsg').textContent='';
+}
+window.editarEstoque = function(id){
+  const e = estoque.find(x=>x.id===id); if(!e) return;
+  estEditId = id;
+  $('estTipo').value = e.tipo||'Estoque'; $('estData').value = e.data||''; $('estValor').value = e.valor; $('estDesc').value = e.descricao||'';
+  $('estAdd').textContent='Salvar alterações';
+  $('estCancel').style.display='inline-block';
+  $('estMsg').textContent='Editando '+(e.tipo||'Estoque')+' de '+brl(e.valor);
+  $('estValor').scrollIntoView?.({behavior:'smooth', block:'center'});
+  $('estValor').focus();
+};
+$('estCancel').addEventListener('click', sairEdicaoEstoque);
+
+/* ====================== LOGIN / IMPORT / CSV ====================== */
+async function entrar(){
+  $('loginMsg').textContent='';
+  const email=$('lgEmail').value.trim(), password=$('lgSenha').value;
+  if(!email||!password){ $('loginMsg').textContent='Preencha e-mail e senha.'; return; }
+  $('lgBtn').disabled=true; $('lgBtn').textContent='Entrando…';
+  const {error} = await sb.auth.signInWithPassword({email, password});
+  $('lgBtn').disabled=false; $('lgBtn').textContent='Entrar';
+  if(error){ $('loginMsg').textContent='E-mail ou senha incorretos.'; return; }
+  $('lgSenha').value='';
+  $('login').style.display='none';
+  carregar();
+}
+$('lgBtn').addEventListener('click', entrar);
+$('lgSenha').addEventListener('keydown', e=>{ if(e.key==='Enter') entrar(); });
+$('btnSair').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+  servicos=[]; estoque=[]; renderAll();
+  $('login').style.display='flex';
+});
+
+$('btnImport').addEventListener('click', async ()=>{
+  if(!armado($('btnImport'))) return;
+  $('btnImport').disabled=true; $('btnImport').textContent='Importando…';
+  const r1 = await sb.from('servicos').insert(SEED.map(s=>toRowS({...s, id:uid()})));
+  const r2 = !r1.error && await sb.from('despesas').insert(SEED_DESP.map(e=>toRowD({...e, id:uid()})));
+  const r3 = !r1.error && !r2.error && await sb.from('prolabore').upsert({mes:'2026-09', valor:2500});
+  const err = r1.error || (r2&&r2.error) || (r3&&r3.error);
+  $('btnImport').disabled=false; $('btnImport').textContent='Importar dados da planilha';
+  if(err){ toast('Falha na importação: '+err.message, true); }
+  else toast(`Importados ${SEED.length} serviços e ${SEED_DESP.length} despesas`);
+  carregar();
+});
+
+function baixarCSV(nome, linhas){
+  const esc = v => { const t=String(v??''); return /[;"\n]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t; };
+  const csv = '\uFEFF' + linhas.map(l=>l.map(esc).join(';')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=nome; document.body.appendChild(a); a.click(); a.remove();
+}
+$('btnCsv').addEventListener('click', ()=>{
+  const hoje=new Date().toISOString().slice(0,10);
+  const num = v => String(v??0).replace('.',',');
+  baixarCSV(`camargo-servicos-${hoje}.csv`, [
+    ['Data','Cliente','Telefone','Veículo','Modelo','Serviço','Receita','Material teórico','Terceirização','Origem','Concluído','Observação'],
+    ...[...servicos].sort((a,b)=>a.data.localeCompare(b.data)).map(s=>[dataBR(s.data),s.cliente,s.telefone,s.veiculo,s.modelo,s.servico,
+      num(s.receita),num(s.custo),num(s.custoTerc),s.origem,s.concluido?'sim':'não',s.obs])
+  ]);
+  setTimeout(()=>baixarCSV(`camargo-despesas-${hoje}.csv`, [
+    ['Data','Tipo','Descrição','Valor'],
+    ...[...estoque].sort((a,b)=>(a.data||'').localeCompare(b.data||'')).map(e=>[dataBR(e.data),e.tipo,e.descricao,num(e.valor)])
+  ]), 400);
+});
+
+/* ao voltar para a aba/app, busca o que o outro sócio lançou */
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && $('login').style.display==='none') carregar();
+});
+
+/* ====================== INIT ====================== */
+(async function init(){
+  servicos=[]; estoque=[]; dreParams={...DEFAULT_DRE, proLaborePorMes:{}};
+  $('data').value = new Date().toISOString().slice(0,10);
+  $('estData').value = new Date().toISOString().slice(0,10);
+  $('mesDRE').value = new Date().toISOString().slice(0,7);
+  renderAll();
+  const {data} = await sb.auth.getSession();
+  if(data && data.session){ $('login').style.display='none'; carregar(); }
+})();
+</script>
+</body>
+</html>
