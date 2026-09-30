@@ -1,0 +1,17 @@
+{
+  "name": "Camargo Automotivo · ERP",
+  "short_name": "Camargo ERP",
+  "description": "Controle de serviços, despesas e DRE da Camargo Automotivo",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1F1D19",
+  "theme_color": "#1F1D19",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
